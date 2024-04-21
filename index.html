@@ -1,0 +1,78 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web3 Trading</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.3.6/dist/web3.min.js"></script>
+    <script>
+        // Function to initialize the web3 object
+        async function initWeb3() {
+            // Check if MetaMask is installed
+            if (window.ethereum) {
+                window.web3 = new Web3(window.ethereum);
+                try {
+                    // Request account access if needed
+                    await window.ethereum.enable();
+                    console.log("Connected to MetaMask!");
+                    return true;
+                } catch (error) {
+                    // User denied account access
+                    console.error("User denied account access");
+                    return false;
+                }
+            } else {
+                // MetaMask is not installed
+                console.error("MetaMask is not installed");
+                return false;
+            }
+        }
+
+        // Function to handle ETH to Token trading
+        async function tradeETHForToken() {
+            // Address of the contract for the specific token
+            const tokenContractAddress = "0x123abc...";
+
+            // Get the user's MetaMask account address
+            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+            const userAccount = accounts[0];
+
+            // Check if the user is connected
+            if (!userAccount) {
+                console.error("Please connect to MetaMask first");
+                return;
+            }
+
+            // Amount of ETH to trade (in wei)
+            const ethAmount = "1000000000000000000"; // 1 ETH in wei
+
+            // Initialize the contract instance
+            const tokenContract = new window.web3.eth.Contract(tokenAbi, tokenContractAddress);
+
+            // Approve the token contract to spend user's ETH
+            try {
+                await window.web3.eth.sendTransaction({
+                    from: userAccount,
+                    to: tokenContractAddress,
+                    value: ethAmount
+                });
+                console.log("Trade successful!");
+            } catch (error) {
+                console.error("Error while trading:", error);
+            }
+        }
+
+        // Function to handle button click
+        async function handleTradeButtonClick() {
+            const isConnected = await initWeb3();
+            if (isConnected) {
+                await tradeETHForToken();
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Web3 Trading</h1>
+    <button onclick="handleTradeButtonClick()">Trade ETH for Token</button>
+</body>
+</html>
